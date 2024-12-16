@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Browser Launcher</title>
+</head>
+<body>
+
+    <h1>Launch Browser with URL</h1>
+
+    <!-- Simple form to input the URL -->
+    <form id="urlForm">
+        <label for="url">Enter URL:</label>
+        <input type="text" id="url" name="url" required>
+        <button type="submit">Launch Browser</button>
+    </form>
+
+    <div id="responseMessage"></div>
+
+    <script>
+        // Get references to the form and the message container
+        const form = document.getElementById('urlForm');
+        const responseMessage = document.getElementById('responseMessage');
+
+        // Handle form submission
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();  // Prevent the default form submission behavior
+
+            const url = document.getElementById('url').value;
+
+            // Validate the URL
+            if (!url) {
+                responseMessage.textContent = 'Please enter a valid URL.';
+                return;
+            }
+
+            try {
+                // Make the POST request to FastAPI backend
+                const response = await fetch('http://0.0.0.1:5057/url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'url': url
+                    })
+                });
+
+                // Handle the response from the FastAPI server
+                if (response.ok) {
+                    const data = await response.json();
+                    responseMessage.textContent = data.message;  // Display the response message
+                } else {
+                    const error = await response.json();
+                    responseMessage.textContent = error.detail || 'An error occurred.';
+                }
+            } catch (error) {
+                responseMessage.textContent = 'Failed to communicate with the server.';
+            }
+        });
+    </script>
+
+</body>
+</html>
